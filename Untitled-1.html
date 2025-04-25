@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全視窗底色與愛心</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #cdb4db; /* 修正背景顏色 */
+            overflow: hidden;
+            position: relative; /* 確保背景層級 */
+        }
+
+        .menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #6a4c93;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000; /* 保持選單在最上層 */
+        }
+
+        .menu button {
+            background-color: #6a4c93;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu button:hover {
+            background-color: #5a3b82;
+        }
+
+        .center-image,
+        .center-video,
+        .center-portfolio,
+        .question {
+            position: fixed;
+            top: 50%; /* 確保內容在視窗正中間 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 500; /* 確保內容在背景之上，但低於選單 */
+            width: 1200px; /* 確保大小一致 */
+            height: auto; /* 保持比例 */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* 增加陰影效果 */
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 50px; /* 下拉選單距離按鈕的距離 */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+
+        .dropdown button {
+            background-color: #ffffff;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .question {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .question button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f7f7f7;
+        }
+
+        .question button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .heart {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            transform: rotate(-45deg);
+            animation: moveHeart 10s linear infinite;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: inherit;
+            border-radius: 50%;
+        }
+
+        .heart::before {
+            top: -25px;
+            left: 0;
+        }
+
+        .heart::after {
+            top: 0;
+            left: -25px;
+        }
+
+        @keyframes moveHeart {
+            0% {
+                transform: translate(0, 0) rotate(-45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100vw, -100vh) rotate(-45deg);
+                opacity: 0;
+            }
+        }
+
+        .center-portfolio {
+            position: fixed;
+            top: 50%; /* 確保內容在視窗正中間 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 500; /* 確保內容在背景之上，但低於選單 */
+            width: 90%; /* 增加寬度為視窗的 90% */
+            height: 80%; /* 增加高度為視窗的 80% */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* 增加陰影效果 */
+            border: 1px solid #ccc; /* 增加邊框 */
+            border-radius: 10px; /* 增加圓角 */
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <button onclick="showImage('01.png')">首頁</button>
+        <button onclick="showImage('02.png')">自我介紹</button>
+        <div style="position: relative;">
+            <button onclick="togglePortfolioDropdown()">作品集</button>
+            <!-- 作品集下拉選單 -->
+            <div class="dropdown" id="portfolioDropdown">
+                <button onclick="showPortfolio('https://tong0788.github.io/1/')">第一周</button>
+                <button onclick="showPortfolio('https://tong0788.github.io/2/')">第二周</button>
+                <button onclick="showPortfolio('https://tong0788.github.io/3/')">第三周</button>
+            </div>
+        </div>
+        <button onclick="startQuiz()">測驗卷</button>
+        <button onclick="showVideo()">教學影片</button>
+    </div>
+
+    <!-- 問題彈窗 -->
+    <div class="question" id="questionBox">
+        <p id="questionText"></p>
+        <div id="questionOptions"></div>
+        <p id="resultText" class="result"></p>
+    </div>
+
+    <!-- 總分顯示 -->
+    <div class="total-score" id="totalScoreBox"></div>
+
+    <!-- 中間顯示的圖片 -->
+    <img src="" alt="顯示圖片" class="center-image" id="centerImage">
+
+    <!-- 中間顯示的影片 -->
+    <video 
+        src="https://cfchen58.synology.me/%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%882024/B2/week1/20250217_105724" 
+        class="center-video" 
+        id="centerVideo" 
+        controls>
+    </video>
+
+    <!-- 中間顯示的作品集 -->
+    <iframe 
+        class="center-portfolio" 
+        id="centerPortfolio" 
+        frameborder="0">
+    </iframe>
+
+    <script>
+        const hideAllContent = () => {
+            document.getElementById('centerImage').style.display = 'none';
+            document.getElementById('centerVideo').style.display = 'none';
+            document.getElementById('centerPortfolio').style.display = 'none';
+            document.getElementById('questionBox').style.display = 'none';
+        };
+
+        const showImage = (src) => {
+            hideAllContent(); // 隱藏其他內容
+            const image = document.getElementById('centerImage');
+            image.src = src; // 設定圖片來源
+            image.style.display = 'block'; // 顯示圖片
+        };
+
+        const showVideo = () => {
+            hideAllContent(); // 隱藏其他內容
+            const video = document.getElementById('centerVideo');
+            video.style.display = 'block'; // 顯示影片
+        };
+
+        const showPortfolio = (url) => {
+            hideAllContent(); // 隱藏其他內容
+            const portfolio = document.getElementById('centerPortfolio');
+            portfolio.src = url; // 設定作品集網址
+            portfolio.style.display = 'block'; // 顯示作品集
+        };
+
+        const togglePortfolioDropdown = () => {
+            const dropdown = document.getElementById('portfolioDropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        };
+
+        const startQuiz = () => {
+            hideAllContent(); // 隱藏其他內容
+            currentQuestionIndex = 0; // 重置題目索引
+            score = 0; // 重置分數
+            showQuestion();
+        };
+
+        let score = 0; // 紀錄總分
+        let currentQuestionIndex = 0; // 當前題目索引
+
+        const questions = [
+            { question: '1 + 1 = ?', options: ['1', '2', '3'], correctIndex: 1 },
+            { question: '15 - 9 = ?', options: ['5', '6', '7'], correctIndex: 1 },
+            { question: '25 + 75 = ?', options: ['90', '100', '110'], correctIndex: 1 },
+            { question: '114 + 718 = ?', options: ['832', '824', '842'], correctIndex: 0 }
+        ];
+
+        const showQuestion = () => {
+            if (currentQuestionIndex >= questions.length) {
+                showTotalScore(); // 顯示總分
+                return;
+            }
+
+            const questionBox = document.getElementById('questionBox');
+            const questionText = document.getElementById('questionText');
+            const questionOptions = document.getElementById('questionOptions');
+            const resultText = document.getElementById('resultText');
+
+            // 取得當前題目
+            const currentQuestion = questions[currentQuestionIndex];
+
+            // 設定問題文字
+            questionText.textContent = currentQuestion.question;
+
+            // 清空舊選項和結果
+            questionOptions.innerHTML = '';
+            resultText.textContent = '';
+
+            // 建立選項按鈕
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => {
+                    if (index === currentQuestion.correctIndex) {
+                        resultText.textContent = '答對了！';
+                        score += 25; // 答對加 25 分
+                    } else {
+                        resultText.textContent = '答錯了！';
+                    }
+
+                    setTimeout(() => {
+                        currentQuestionIndex++; // 跳到下一題
+                        showQuestion();
+                    }, 1000); // 1 秒後跳到下一題
+                };
+                questionOptions.appendChild(button);
+            });
+
+            // 顯示問題彈窗
+            questionBox.style.display = 'block';
+        };
+
+        const showTotalScore = () => {
+            const questionBox = document.getElementById('questionBox');
+            const totalScoreBox = document.getElementById('totalScoreBox');
+
+            // 隱藏問題彈窗
+            questionBox.style.display = 'none';
+
+            // 顯示總分
+            totalScoreBox.textContent = `總分：${score} 分`;
+            totalScoreBox.style.display = 'block';
+
+            // 7 秒後隱藏總分
+            setTimeout(() => {
+                totalScoreBox.style.display = 'none';
+            }, 7000);
+        };
+
+        const createHeart = () => {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            
+            // 隨機大小
+            const size = Math.random() * 20 + 10; // 大小範圍 10~30px
+            heart.style.width = `${size}px`;
+            heart.style.height = `${size}px`;
+
+            // 隨機位置
+            heart.style.top = `${Math.random() * 100}vh`;
+            heart.style.left = `${Math.random() * 100}vw`;
+
+            // 隨機顏色
+            const colors = ['#f5cac3', '#ef476f', '#f7a072'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            heart.style.backgroundColor = randomColor;
+
+            // 隨機動畫時間
+            const animationDuration = Math.random() * 5 + 5; // 動畫持續時間 5~10秒
+            heart.style.animationDuration = `${animationDuration}s`;
+
+            document.body.appendChild(heart);
+
+            // 移除愛心以防止累積
+            setTimeout(() => {
+                heart.remove();
+            }, animationDuration * 1000);
+        };
+
+        // 每 300 毫秒生成一個愛心
+        setInterval(createHeart, 300);
+    </script>
+</body>
+</html>

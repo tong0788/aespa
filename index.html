@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sketch</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+  </head>
+
+  <body>
+    <script src="sketch.js"></script>
+    <script>
+        const showTotalScore = () => {
+            const questionBox = document.getElementById('questionBox');
+            const totalScoreBox = document.getElementById('totalScoreBox');
+
+            // 隱藏問題彈窗
+            questionBox.style.display = 'none';
+
+            // 顯示總分
+            totalScoreBox.textContent = `總分：${score} 分`;
+            totalScoreBox.style.display = 'block';
+
+            // 3 秒後隱藏總分
+            setTimeout(() => {
+                totalScoreBox.style.display = 'none';
+            }, 3000); // 修改為 3 秒
+        };
+    </script>
+  </body>
+</html>
